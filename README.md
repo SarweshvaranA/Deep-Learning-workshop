@@ -1,8 +1,33 @@
 # Deep-Learning-workshop
 ## NAME: SARWESHVARAN A
 ## REG NO: 212223230198
+## Aim
+Build and train a deep learning model using embeddings for categorical data and batch normalization for continuous data to classify income levels.
 
-## PROGRAM:
+## Input Features
+- **Categorical:** sex, education, marital-status, workclass, occupation  
+- **Continuous:** age, hours-per-week  
+- **Target:** label (income class)
+
+## Theory  
+Use embedding layers to represent categorical variables, batch normalization for continuous variables, and fully connected layers with dropout and ReLU activations to build a robust classifier.
+
+## Procedure  
+1. Load and inspect dataset (`income.csv`).  
+2. Convert categorical columns to category type and shuffle data.  
+3. Create embedding sizes and convert data to tensors.  
+4. Split data into training and test sets.  
+5. Define the PyTorch tabular model with embeddings and batch normalization.  
+6. Initialize model, loss function (CrossEntropyLoss), and Adam optimizer.  
+7. Train the model for 300 epochs, printing loss every 25 epochs.  
+8. Plot training loss curve to evaluate learning.  
+9. Optionally, experiment with model architecture and hyperparameters.
+
+## Prerequisites  
+- Python 3.x, PyTorch, pandas, matplotlib, scikit-learn installed.  
+- Basic Python and ML knowledge.
+
+## Program
 ```python
 import torch
 import torch.nn as nn
@@ -16,6 +41,10 @@ df = pd.read_csv('income.csv')
 print(f"Length of the dataset: {len(df)}")
 print("First 5 rows of the dataset:")
 print(df.head())
+```
+<img width="479" height="219" alt="image" src="https://github.com/user-attachments/assets/68c24b92-2267-4fd3-b888-dc5607646f44" />
+
+```python
 cat_cols = ['sex', 'education', 'marital-status', 'workclass', 'occupation']
 cont_cols = ['age', 'hours-per-week']
 y_col = ['label']
@@ -23,6 +52,10 @@ y_col = ['label']
 print(f'cat_cols has {len(cat_cols)} columns')
 print(f'cont_cols has {len(cont_cols)} columns')
 print(f'y_col has {len(y_col)} column')
+```
+<img width="175" height="51" alt="image" src="https://github.com/user-attachments/assets/2288fed7-2a62-43fd-8847-0d10574fd836" />
+
+```python
 for col in cat_cols: # Convert categorical columns to category type
     df[col] = df[col].astype('category')
 
@@ -31,6 +64,11 @@ df = shuffle(df, random_state=101)
 df.reset_index(drop=True, inplace=True)
 
 print(df.head()) # Preview the first 5 rows of the shuffled dataset
+```
+
+<img width="475" height="198" alt="image" src="https://github.com/user-attachments/assets/c76bd875-21c3-46c6-9595-ad73656efe43" />
+
+```python
 # Create embedding sizes for each categorical column
 cat_szs = [len(df[col].cat.categories) for col in cat_cols]
 emb_szs = [(size, min(50, (size+1)//2)) for size in cat_szs]
@@ -58,6 +96,10 @@ y_test    = y[b-t:b]
 print(f"cat_train shape: {cat_train.shape}")
 print(f"con_train shape: {con_train.shape}")
 print(f"y_train shape: {y_train.shape}")
+```
+<img width="391" height="74" alt="image" src="https://github.com/user-attachments/assets/faf43eda-9b3e-43d8-8b0b-b1218070d2e4" />
+ 
+```python
 class TabularModel(nn.Module):
     def __init__(self, emb_szs, n_cont, out_sz, layers, p=0.5):
         super().__init__()
@@ -106,6 +148,10 @@ criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 print(model)
+```
+<img width="640" height="264" alt="image" src="https://github.com/user-attachments/assets/451bd7c7-3cd7-40c7-905b-c4fcd3ab339c" />
+
+```python
 # Training loop
 epochs = 300
 losses = []
@@ -134,30 +180,32 @@ plt.ylabel('Cross-Entropy Loss')
 plt.title('Training Loss Curve')
 plt.show()
 ```
-
-## OUTPUT:
-
-<img width="479" height="219" alt="image" src="https://github.com/user-attachments/assets/68c24b92-2267-4fd3-b888-dc5607646f44" />
-
----
-
-<img width="175" height="51" alt="image" src="https://github.com/user-attachments/assets/2288fed7-2a62-43fd-8847-0d10574fd836" />
-
----
-
-<img width="475" height="198" alt="image" src="https://github.com/user-attachments/assets/c76bd875-21c3-46c6-9595-ad73656efe43" />
-
----
-
-<img width="391" height="74" alt="image" src="https://github.com/user-attachments/assets/faf43eda-9b3e-43d8-8b0b-b1218070d2e4" />
-
----
-
-<img width="640" height="264" alt="image" src="https://github.com/user-attachments/assets/451bd7c7-3cd7-40c7-905b-c4fcd3ab339c" />
-
----
-
 <img width="562" height="563" alt="image" src="https://github.com/user-attachments/assets/b966ae11-7faa-46a0-ae9a-fc489c5c1916" />
+
+```python
+with torch.no_grad():
+    y_val = model(cat_test, con_test)
+    loss = criterion(y_val, y_test)
+print(f'CE Loss: {loss:.8f}')
+```
+
+<img width="126" height="26" alt="image" src="https://github.com/user-attachments/assets/04c05136-97e7-48fc-93b8-8c1de86fcb56" />
+
+
+```python
+correct = 0
+for i in range(len(y_test)):
+    if y_val[i].argmax().item() == y_test[i].item():
+        correct += 1
+
+accuracy = correct / len(y_test) * 100
+print(f'{correct} out of {len(y_test)} = {accuracy:.2f}% correct')
+```
+
+<img width="227" height="21" alt="image" src="https://github.com/user-attachments/assets/cf0a6991-fef8-4c79-952e-d9f6fc6b3be5" />
+
+
+
 
 
 
